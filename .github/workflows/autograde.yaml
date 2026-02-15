@@ -41,10 +41,9 @@ jobs:
         run: |
           mkdir workspace
           mkdir workspace/student_repo
-          mkdir workspace/student_repo/"${{ github.actor }}_solutions"
           cp -r grader_repo/grader workspace/
           cp -r grader_repo/hidden_tests workspace/
-          cp -r "${{ github.actor }}_solutions" workspace/student_repo/"${{ github.actor }}_solutions"
+          cp -r "${{ github.actor }}_solutions" workspace/student_repo
       # 4️⃣ Validate Repository Structure
       - name: Validate Structure
         run: |
