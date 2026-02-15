@@ -1,0 +1,7 @@
+{
+  "add.py": [
+    { "input": [1, 2], "output": 3 },
+    { "input": [-1, 5], "output": 4 },
+    { "input": [100, 200], "output": 300 }
+  ]
+}

@@ -1,0 +1,27 @@
+name: Auto Grader
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Validate Structure
+        run: python grader/validate_structure.py
+
+      - name: Run Tests
+        run: python grader/run_tests.py
