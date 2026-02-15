@@ -1,7 +1,7 @@
 import os
 import sys
 
-ALLOWED_TOP_LEVEL = {"tests", "grader", ".github"}
+ALLOWED_TOP_LEVEL = {"tests", "grader", ".github",".git"}
 TESTS_DIR = "tests"
 
 
