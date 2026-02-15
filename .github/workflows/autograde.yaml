@@ -25,13 +25,26 @@ jobs:
       # 2️⃣ Clone Private Grader Repository
       - name: Clone Private Grader
         run: |
-          git clone https://x-access-token:${{ secrets.GRADER_REPO_TOKEN }}@github.com/Once-1296/CoC-workshop-test-runner.git
+          git clone https://x-access-token:${{ secrets.GRADER_REPO_TOKEN }}@github.com/Once-1296/CoC-workshop-test-runner.git grader_repo
+          if [ ! -d "grader_repo" ]; then
+            echo "❌ Failed to clone grader repo"
+            exit 1
+          fi
+          ls -R grader_repo
+      
 
       # 3️⃣ Fetch main branch for diff comparison
       - name: Fetch Main Branch
         run: |
           git fetch origin main
-
+      - name: Assemble Workspace
+        run: |
+          mkdir workspace
+          mkdir workspace/student_repo
+          mkdir workspace/student_repo/"${{ github.actor }}_solutions"
+          cp -r grader_repo/grader workspace/
+          cp -r grader_repo/hidden_tests workspace/
+          cp -r "${{ github.actor }}_solutions" workspace/student_repo/"${{ github.actor }}_solutions"
       # 4️⃣ Validate Repository Structure
       - name: Validate Structure
         run: |
@@ -41,14 +54,15 @@ jobs:
       - name: Validate Diff
         run: |
           python3 grader_repo/grader/validate_diff.py
-
-      # 6️⃣ Assemble Workspace for Docker
-      - name: Assemble Workspace
+          
+      - name: Debug Repo Structure
         run: |
-          mkdir workspace
-          cp -r grader_repo/grader workspace/
-          cp -r grader_repo/hidden_tests workspace/
-          cp -r . workspace/student_repo
+          echo "Current directory:"
+          pwd
+          echo "Listing root:"
+          ls -R
+          echo "Listing grader_repo:"
+          ls -R grader_repo || echo "grader_repo not found"
 
       # 7️⃣ Build Docker Sandbox
       - name: Build Docker Image
@@ -125,5 +139,6 @@ jobs:
         if: success()
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GRADER_REPO_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: merge
