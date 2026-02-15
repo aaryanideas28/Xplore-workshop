@@ -44,7 +44,12 @@ jobs:
       - name: Fetch Main Branch
         run: |
           git fetch origin main
-
+      - name: Assemble Workspace
+        run: |
+          mkdir workspace
+          cp -r grader_repo/grader workspace/
+          cp -r grader_repo/hidden_tests workspace/
+          cp -r "${{ github.actor }}_solutions" workspace/student_repo
       # 4️⃣ Validate Repository Structure
       - name: Validate Structure
         run: |
@@ -54,14 +59,6 @@ jobs:
       - name: Validate Diff
         run: |
           python3 grader_repo/grader/validate_diff.py
-
-      # 6️⃣ Assemble Workspace for Docker
-      - name: Assemble Workspace
-        run: |
-          mkdir workspace
-          cp -r grader_repo/grader workspace/
-          cp -r grader_repo/hidden_tests workspace/
-          cp -r . workspace/student_repo
 
       # 7️⃣ Build Docker Sandbox
       - name: Build Docker Image
