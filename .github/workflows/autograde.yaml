@@ -25,7 +25,20 @@ jobs:
       # 2️⃣ Clone Private Grader Repository
       - name: Clone Private Grader
         run: |
-          git clone https://x-access-token:${{ secrets.GRADER_REPO_TOKEN }}@github.com/Once-1296/CoC-workshop-test-runner.git
+          git clone https://x-access-token:${{ secrets.GRADER_REPO_TOKEN }}@github.com/YOUR_USERNAME/YOUR_PRIVATE_REPO.git grader_repo
+          if [ ! -d "grader_repo" ]; then
+            echo "❌ Failed to clone grader repo"
+            exit 1
+          fi
+          ls -R grader_repo
+      - name: Debug Repo Structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Listing root:"
+          ls -R
+          echo "Listing grader_repo:"
+          ls -R grader_repo || echo "grader_repo not found"
 
       # 3️⃣ Fetch main branch for diff comparison
       - name: Fetch Main Branch
