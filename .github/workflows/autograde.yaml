@@ -20,7 +20,7 @@ jobs:
       - name: Checkout PR
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # required for diff validation
+          fetch-depth: 0
 
       # 2️⃣ Clone Private Grader Repository
       - name: Clone Private Grader
@@ -30,13 +30,11 @@ jobs:
             echo "❌ Failed to clone grader repo"
             exit 1
           fi
-          ls -R grader_repo
-      
 
-      # 3️⃣ Fetch main branch for diff comparison
+      # 3️⃣ Fetch main branch
       - name: Fetch Main Branch
-        run: |
-          git fetch origin main
+        run: git fetch origin main
+
       - name: Assemble Workspace
         run: |
           mkdir workspace
@@ -44,31 +42,20 @@ jobs:
           cp -r grader_repo/grader workspace/
           cp -r grader_repo/hidden_tests workspace/
           cp -r "${{ github.actor }}_solutions/." workspace/student_repo/
+
       # 4️⃣ Validate Repository Structure
       - name: Validate Structure
-        run: |
-          python3 grader_repo/grader/validate_structure.py
+        run: python3 grader_repo/grader/validate_structure.py
 
       # 5️⃣ Validate Only Allowed Files Modified
       - name: Validate Diff
-        run: |
-          python3 grader_repo/grader/validate_diff.py
-          
-      - name: Debug Repo Structure
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Listing root:"
-          ls -R
-          echo "Listing grader_repo:"
-          ls -R grader_repo || echo "grader_repo not found"
+        run: python3 grader_repo/grader/validate_diff.py
 
-      # 7️⃣ Build Docker Sandbox
+      # 6️⃣ Build Docker Sandbox
       - name: Build Docker Image
-        run: |
-          docker build -t pr-grader workspace/grader/docker
+        run: docker build -t pr-grader workspace/grader/docker
 
-      # 8️⃣ Run Tests in Docker (Sandboxed)
+      # 7️⃣ Run Hidden Tests
       - name: Run Hidden Tests
         run: |
           docker run --rm \
@@ -77,63 +64,102 @@ jobs:
             -v ${{ github.workspace }}/workspace:/workspace \
             pr-grader
 
-      # 9️⃣ Read Results
+      # 8️⃣ Read Results JSON
       - name: Read Results JSON
         id: results
         run: |
-          echo "RESULT=$(cat workspace/results.json | jq -c .)" >> $GITHUB_OUTPUT
+          PASSED=$(jq '.passed' workspace/results.json)
+          TOTAL=$(jq '.total' workspace/results.json)
+          PERCENTAGE=$(( PASSED * 100 / TOTAL ))
 
-      # 🔟 Send Results to Supabase
-      - name: Send Results to Supabase (UPSERT)
+          echo "PASSED=$PASSED" >> $GITHUB_OUTPUT
+          echo "TOTAL=$TOTAL" >> $GITHUB_OUTPUT
+          echo "PERCENTAGE=$PERCENTAGE" >> $GITHUB_OUTPUT
+
+      # 9️⃣ Get Highest Previous Percentage (Across All PRs for User)
+      - name: Check Highest Previous Score
+        id: compare
         run: |
           python3 - <<EOF
-          import os, json, requests
+          import os, requests
 
-          result = json.loads('''${{ steps.results.outputs.RESULT }}''')
+          github_id = "${{ github.actor }}"
+          current_percentage = int("${{ steps.results.outputs.PERCENTAGE }}")
+
+          headers = {
+              "apikey": os.environ["SUPABASE_SERVICE_ROLE"],
+              "Authorization": f"Bearer {os.environ['SUPABASE_SERVICE_ROLE']}",
+          }
+
+          # Select highest percentage for this user
+          response = requests.get(
+              os.environ["SUPABASE_URL"] +
+              f"?github_id=eq.{github_id}&select=percentage&order=percentage.desc&limit=1",
+              headers=headers
+          )
+
+          highest_previous = 0
+
+          if response.status_code == 200 and response.json():
+              highest_previous = response.json()[0].get("percentage", 0)
+
+          print("Highest Previous:", highest_previous)
+          print("Current:", current_percentage)
+
+          should_merge = current_percentage > highest_previous
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"HIGHEST_PREVIOUS={highest_previous}\n")
+              f.write(f"SHOULD_MERGE={'true' if should_merge else 'false'}\n")
+          EOF
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+
+      # 🔟 Insert New Attempt (Always store attempt history)
+      - name: Insert New Score
+        run: |
+          python3 - <<EOF
+          import os, requests, json
 
           payload = {
               "github_id": "${{ github.actor }}",
-              "pr_number": int("${{ github.event.pull_request.number }}"),
-              "passed": result["passed"],
-              "total": result["total"],
-              "details": result["details"]
+              "passed": int("${{ steps.results.outputs.PASSED }}"),
+              "total": int("${{ steps.results.outputs.TOTAL }}"),
+              "percentage": int("${{ steps.results.outputs.PERCENTAGE }}")
           }
 
           headers = {
               "apikey": os.environ["SUPABASE_SERVICE_ROLE"],
               "Authorization": f"Bearer {os.environ['SUPABASE_SERVICE_ROLE']}",
-              "Content-Type": "application/json",
-              "Prefer": "resolution=merge-duplicates"
+              "Content-Type": "application/json"
           }
 
           response = requests.post(
-              os.environ["SUPABASE_URL"] + "?on_conflict=github_id,pr_number",
+              os.environ["SUPABASE_URL"],
               json=payload,
               headers=headers
           )
 
           if response.status_code not in [200, 201]:
               print("Supabase Error:", response.text)
-              raise Exception("Failed to upsert score")
+              raise Exception("Failed to insert score")
 
-          print("✅ Score upserted successfully.")
+          print("✅ Score inserted successfully.")
           EOF
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
 
-      # 1️⃣1️⃣ Fail if Tests Failed
-      - name: Fail If Tests Failed
+      # 1️⃣1️⃣ Fail If Score Not Improved
+      - name: Fail If Score Not Improved
         run: |
-          PASSED=$(jq '.passed' workspace/results.json)
-          TOTAL=$(jq '.total' workspace/results.json)
-
-          if [ "$PASSED" -ne "$TOTAL" ]; then
-            echo "❌ Some tests failed."
+          if [ "${{ steps.compare.outputs.SHOULD_MERGE }}" != "true" ]; then
+            echo "❌ Score not higher than previous best."
             exit 1
           fi
 
-      # 1️⃣2️⃣ Enable Auto Merge if Successful
+      # 1️⃣2️⃣ Enable Auto Merge if Improved
       - name: Enable Auto Merge
         if: success()
         uses: peter-evans/enable-pull-request-automerge@v3
