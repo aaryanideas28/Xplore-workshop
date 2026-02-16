@@ -104,8 +104,9 @@ jobs:
 
           print("Highest Previous:", highest_previous)
           print("Current:", current_percentage)
-
-          should_merge = current_percentage > highest_previous
+          passed = int("${{ steps.results.outputs.PASSED }}")
+          total = int("${{ steps.results.outputs.TOTAL }}")
+          should_merge = current_percentage > highest_previous or passed == total
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"HIGHEST_PREVIOUS={highest_previous}\n")
