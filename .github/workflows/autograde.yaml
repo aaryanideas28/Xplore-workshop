@@ -91,7 +91,6 @@ jobs:
               "Authorization": f"Bearer {os.environ['SUPABASE_SERVICE_ROLE']}",
           }
 
-          # Select highest percentage for this user
           response = requests.get(
               os.environ["SUPABASE_URL"] +
               f"?github_id=eq.{github_id}&select=percentage&order=percentage.desc&limit=1",
@@ -122,12 +121,16 @@ jobs:
           python3 - <<EOF
           import os, requests, json
 
+          # ✅ FIX: properly load results.json
+          with open("workspace/results.json") as f:
+              result = json.load(f)
+
           payload = {
               "github_id": "${{ github.actor }}",
               "pr_number": int("${{ github.event.pull_request.number }}"),
               "passed": result["passed"],
               "total": result["total"],
-              "details": result["details"]
+              "details": result.get("details", {})
           }
 
           headers = {
