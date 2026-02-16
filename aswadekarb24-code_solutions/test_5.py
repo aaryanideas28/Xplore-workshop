@@ -1,5 +1,5 @@
 def reverse_map(map:dict)->dict:
-    rmap = []
+    rmap = {}
     for key,value in map.items():
-        rmap[key]=value
+        rmap.update({value:key})
     return rmap
