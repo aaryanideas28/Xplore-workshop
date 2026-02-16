@@ -93,7 +93,7 @@ jobs:
 
           response = requests.get(
               os.environ["SUPABASE_URL"] +
-              f"?github_id=eq.{github_id}&select=percentage&order=percentage.desc&limit=1",
+              f"?github_id=eq.{github_id}&select=score_percentage&order=score_percentage.desc&limit=1",
               headers=headers
           )
 
