@@ -124,19 +124,21 @@ jobs:
 
           payload = {
               "github_id": "${{ github.actor }}",
-              "passed": int("${{ steps.results.outputs.PASSED }}"),
-              "total": int("${{ steps.results.outputs.TOTAL }}"),
-              "percentage": int("${{ steps.results.outputs.PERCENTAGE }}")
+              "pr_number": int("${{ github.event.pull_request.number }}"),
+              "passed": result["passed"],
+              "total": result["total"],
+              "details": result["details"]
           }
 
           headers = {
               "apikey": os.environ["SUPABASE_SERVICE_ROLE"],
               "Authorization": f"Bearer {os.environ['SUPABASE_SERVICE_ROLE']}",
+              "Prefer": "resolution=merge-duplicates",
               "Content-Type": "application/json"
           }
 
           response = requests.post(
-              os.environ["SUPABASE_URL"],
+              os.environ["SUPABASE_URL"] + "?on_conflict=github_id,pr_number",
               json=payload,
               headers=headers
           )
