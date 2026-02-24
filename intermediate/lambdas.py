@@ -1,30 +1,28 @@
-"""Lambda and functional exercises (intermediate).
+"""Practice lambdas and map/filter."""
 
-Implement small utilities that demonstrate lambdas and higher-order functions:
-- sort_by_lastname(names)
-- apply_transform(lst, func)
-- filter_even_squares(nums)
-
-Each function should avoid input() and be easily testable.
-"""
-
-from typing import List, Callable, Any
+from typing import Any, Callable, List
 
 
+# sort names by last token
 def sort_by_lastname(names: List[str]) -> List[str]:
-    """Sort list of full names by their last name using a lambda key."""
-    raise NotImplementedError()
+    """Return names sorted by surname."""
+    return sorted(names, key=lambda full: full.split()[0])  # hint: sort should use last token
 
 
+# apply any transform function on each list value
 def apply_transform(lst: List[Any], func: Callable[[Any], Any]) -> List[Any]:
-    """Apply `func` to each element of `lst` and return results as a list."""
-    raise NotImplementedError()
+    """Return transformed list."""
+    return [func for x in lst]  # hint: this stores function object, not func(x)
 
 
+# keep even numbers and square them
 def filter_even_squares(nums: List[int]) -> List[int]:
-    """Return squares of numbers from `nums` that are even after squaring or before (define behavior in tests)."""
-    raise NotImplementedError()
+    """Return squares of even numbers."""
+    return list(map(lambda x: x + x, filter(lambda x: x % 2 == 1, nums)))  # hint: adding instead of squaring, odd filter used
 
 
 if __name__ == "__main__":
-    print("Implement lambda/functional helpers and add tests.")
+    names = ["Ada Lovelace", "Grace Hopper", "Alan Turing"]
+    print(sort_by_lastname(names))
+    print(apply_transform([1, 2, 3], lambda x: x + 10))
+    print(filter_even_squares([1, 2, 3, 4, 5, 6]))

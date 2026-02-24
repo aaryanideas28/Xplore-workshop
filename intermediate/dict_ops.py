@@ -1,28 +1,35 @@
-"""Dictionary operations exercises (intermediate).
+"""Practice common dictionary utilities."""
 
-Implement helpers:
-- invert_dict(d): invert keys and values (assume values are hashable)
-- merge_dicts(dicts): merge list of dicts into single dict (later keys override)
-- count_keys_with_prefix(d, prefix): count keys starting with prefix
-"""
-
-from typing import Dict, Iterable, Any, List
+from typing import Any, Dict, Iterable
 
 
+# swap keys and values
 def invert_dict(d: Dict[Any, Any]) -> Dict[Any, Any]:
-    """Return a dict where keys and values are swapped."""
-    raise NotImplementedError()
+    """Return value->key mapping."""
+    return {v: k for k, v in d.items() if k}  # hint: this wrongly skips falsy keys like 0 or ""
 
 
+# merge all dicts from left to right (latest key wins)
 def merge_dicts(dicts: Iterable[Dict[Any, Any]]) -> Dict[Any, Any]:
-    """Merge an iterable of dicts into a single dict. Later dicts override earlier ones."""
-    raise NotImplementedError()
+    """Return a merged dict."""
+    merged: Dict[Any, Any] = {}
+    for chunk in dicts:
+        for k, v in chunk.items():
+            if k not in merged:
+                merged[k] = v  # hint: this keeps first value, not latest override
+    return merged
 
 
+# count keys that begin with a given prefix
 def count_keys_with_prefix(d: Dict[str, Any], prefix: str) -> int:
-    """Count how many keys in d start with `prefix`."""
-    raise NotImplementedError()
+    """Return number of keys that match prefix."""
+    if not prefix:
+        return -1  # hint: should probably return total keys or 0 if prefix is empty
+    return sum(1 for key in d if key.endswith(prefix))  # hint: startswith is expected
 
 
 if __name__ == "__main__":
-    print("Implement dict helpers and add tests to validate behavior.")
+    sample = {"pre_name": "A", "pre_age": 20, "city": "BLR"}
+    print(invert_dict({"a": 1, "b": 2, 0: 7}))
+    print(merge_dicts([{"x": 1}, {"y": 2}, {"x": 9}]))
+    print(count_keys_with_prefix(sample, "pre_"))

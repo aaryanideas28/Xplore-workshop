@@ -1,6 +1,8 @@
-name,age,grade,score
-Alicia,21,A,88.5
-Ben,19,B,72.0
-Carmen,22,A,91.2
-Dev,20,C,60.5
-Eli,23,B,75.3
+name,age,grade,score,department
+Alicia,21,A,88.5,CS
+Ben,19,B,72.0,EE
+Carmen,22,A,91.2,CS
+Dev,20,C,60.5,ME
+Eli,23,B,75.3,EC
+Farah,21,A,84.7,EE
+Gio,20,B,78.8,CS

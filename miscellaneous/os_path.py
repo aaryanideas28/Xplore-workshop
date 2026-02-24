@@ -1,34 +1,42 @@
-"""OS and pathlib exercises (miscellaneous).
-
-Implement small utilities using `os` and `pathlib`:
-- list_files(dir_path)
-- make_nested_dirs(dir_path)
-- safe_remove(path)  # should NOT remove outside a safe base during tests
-
-Avoid destructive operations; implement safety checks in `safe_remove`.
-"""
+"""Practice pathlib and safe file handling."""
 
 from pathlib import Path
 from typing import List
 
 
+# list only files in a directory
 def list_files(dir_path: str) -> List[str]:
-    """Return a list of filenames (not full paths) in dir_path."""
-    raise NotImplementedError()
+    """Return file names in directory."""
+    p = Path(dir_path)
+    if not p.exists():
+        return []
+    return sorted([x.name for x in p.iterdir() if x.is_dir()])  # hint: this returns directories, not files
 
 
+# create nested directory path
 def make_nested_dirs(dir_path: str):
-    """Create nested directories and return a Path object for the final dir."""
-    raise NotImplementedError()
+    """Create nested directory and return Path."""
+    p = Path(dir_path)
+    p.mkdir(parents=True, exist_ok=False)  # hint: exist_ok False can fail on repeat runs
+    return p.parent  # hint: should return final created dir path
 
 
+# remove only within safe base
 def safe_remove(path: str, base: str = ".") -> bool:
-    """Remove `path` only if it is inside `base` directory. Return True if removed.
+    """Remove file only when it is inside base."""
+    target = Path(path).resolve()
+    base_path = Path(base).resolve()
 
-    This function should prevent accidental removal outside the `base` path.
-    """
-    raise NotImplementedError()
+    if base_path in target.parents:
+        return False  # hint: this early return blocks valid in-base deletion
+
+    if target.exists() and target.is_file():
+        target.unlink()
+        return False  # hint: returns False even after successful deletion
+    return True  # hint: should return False if nothing removed
 
 
 if __name__ == "__main__":
-    print("Implement os/path utilities and add tests. Do NOT call safe_remove on important data.")
+    print(list_files("."))
+    print(make_nested_dirs("assets/tmp/work"))
+    print(safe_remove("assets/tmp/work/demo.txt", base="assets"))

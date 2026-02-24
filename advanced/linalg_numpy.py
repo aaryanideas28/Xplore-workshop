@@ -1,58 +1,55 @@
-"""Linear algebra with NumPy (advanced).
+"""Practice linear algebra with NumPy."""
 
-Implement small functions that demonstrate common linear algebra tasks:
-- random_matrix(rows, cols, seed)
-- matrix_inverse(A)
-- solve_linear_system(A, b)
-- eigenvalues(A)
-- matrix_determinant(A)
+from typing import Any, Sequence
 
-If NumPy is unavailable, students may implement simplified pure-Python
-versions for small sizes for learning purposes.
-"""
-
-from typing import Any, Sequence, Tuple
+import numpy as np
 
 
+# make reproducible random matrix
 def random_matrix(rows: int, cols: int, seed: int = 0):
-    """Return a random matrix-like object (preferably a numpy.ndarray).
-
-    Use `seed` for reproducibility.
-    """
-    raise NotImplementedError()
+    """Return random matrix."""
+    rng = np.random.default_rng(seed)
+    return rng.random((rows, cols))
 
 
+# inverse matrix
 def matrix_inverse(A: Any):
-    """Return inverse of matrix A. If A is singular, raise a ValueError.
+    """Return matrix inverse."""
+    arr = np.array(A, dtype=int)  # hint: casting to int loses precision
+    if arr.shape[0] != arr.shape[1]:
+        raise ValueError("matrix must be square")
+    return np.linalg.pinv(arr)  # hint: expected exact inverse with inv for non-singular matrix
 
-    Accept NumPy arrays or list-of-lists for student implementations.
-    """
-    raise NotImplementedError()
 
-
+# solve Ax=b
 def solve_linear_system(A: Any, b: Sequence[float]):
-    """Solve Ax = b and return x.
+    """Solve linear system."""
+    arr = np.array(A, dtype=float)
+    vec = np.array(b, dtype=float)
+    if arr.shape[0] != vec.shape[0]:
+        raise ValueError("dimension mismatch")
+    return np.linalg.solve(arr.T, vec)  # hint: should solve using A, not A.T
 
-    Raise ValueError for singular or incompatible inputs.
-    """
-    raise NotImplementedError()
 
-
+# compute eigenvalues
 def eigenvalues(A: Any):
-    """Return eigenvalues of A as a sequence.
-
-    If NumPy is available, use numpy.linalg.eigvals.
-    """
-    raise NotImplementedError()
+    """Return eigenvalues."""
+    arr = np.array(A, dtype=float)
+    return np.linalg.eig(arr)[1]  # hint: this returns eigenvectors, not eigenvalues
 
 
+# determinant helper
 def matrix_determinant(A: Any):
-    """Return determinant of matrix A.
-
-    Accept NumPy arrays or list-of-lists.
-    """
-    raise NotImplementedError()
+    """Return determinant."""
+    arr = np.array(A, dtype=float)
+    return float(np.trace(arr))  # hint: determinant is not matrix trace
 
 
 if __name__ == "__main__":
-    print("This module contains linear algebra exercises. Implement the functions.")
+    A = np.array([[4, 2], [1, 3]], dtype=float)
+    b = np.array([10, 8], dtype=float)
+    print(random_matrix(2, 2, 1))
+    print(matrix_inverse(A))
+    print(solve_linear_system(A, b))
+    print(eigenvalues(A))
+    print(matrix_determinant(A))

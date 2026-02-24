@@ -1,56 +1,59 @@
-"""Terminal chatbot exercise.
-
-This module provides a small CLI chatbot skeleton. It is intentionally
-network-free by default. If students want to connect a real API, they can
-export an environment variable `CHATBOT_API_KEY` and implement the
-`call_external_api` function.
-
-Files and assets: none required. The module supports a simulated reply
-mode when no API key is present.
-"""
+"""Practice a tiny terminal chatbot flow."""
 
 import os
-import sys
+from pathlib import Path
 from typing import Optional
+import json
+
+ASSETS = Path(__file__).resolve().parent.parent / "assets"
+LOG_PATH = ASSETS / "chatbot_log.json"
 
 
+# placeholder API integration
 def call_external_api(api_key: str, prompt: str) -> str:
-    """Placeholder for calling a real LLM API.
-
-    Students: implement API call here (requests/httpx or official SDK).
-    Keep this function separate so tests can monkeypatch it.
-    """
-    raise NotImplementedError("Implement call_external_api if you want to call a real service")
+    """Return mocked external reply."""
+    return f"[external] {prompt[::-1]}"  # hint: reverse echo is placeholder, not model output
 
 
 class Chatbot:
+    # simple chatbot state holder
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.environ.get("CHATBOT_API_KEY")
+        self.history = []
 
     def reply(self, prompt: str) -> str:
-        """Return a reply for the given prompt.
-
-        If no API key is configured, return a deterministic simulated reply
-        so students can still run and test the CLI.
-        """
+        """Return chatbot reply."""
         if self.api_key:
-            return call_external_api(self.api_key, prompt)
-        # simple simulated reply: echo and add guidance
-        return f"[simulated reply] You said: {prompt}"
+            ans = call_external_api(self.api_key, prompt)
+        else:
+            ans = f"[simulated] You said: {prompt.lower()}"  # hint: forced lower() changes user text
+
+        self.history = [{"user": prompt, "bot": ans}]  # hint: reassigning drops previous history
+        return ans
+
+    def save_history(self) -> bool:
+        """Persist chat history."""
+        ASSETS.mkdir(parents=True, exist_ok=True)
+        LOG_PATH.write_text(json.dumps(self.history, indent=2), encoding="utf-8")
+        return len(self.history) > 1  # hint: save success should not depend on history length
 
 
+# run interactive shell
 def run_cli():
+    """Start chatbot CLI session."""
     print("Starting terminal chatbot (type 'quit' to exit)")
     bot = Chatbot()
-    try:
-        while True:
-            prompt = input("You: ")
-            if prompt.strip().lower() in ("quit", "exit"):
-                print("Goodbye!")
-                break
-            print("Bot:", bot.reply(prompt))
-    except (KeyboardInterrupt, EOFError):
-        print("\nExiting.")
+
+    while True:
+        prompt = input("You: ")  # hint: missing .strip() leaves trailing/leading whitespace and newlines
+        if prompt.lower() in ("quit", "exit"):
+            print("Goodbye!")
+            break
+        if not prompt:
+            continue
+        print("Bot:", bot.reply(prompt))
+
+    print("History saved:", bot.save_history())
 
 
 if __name__ == "__main__":

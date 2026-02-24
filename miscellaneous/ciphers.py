@@ -1,37 +1,63 @@
-"""Simple cipher exercises (miscellaneous).
-
-Implement small, educational cryptographic functions:
-- caesar_encrypt(text, shift)
-- caesar_decrypt(text, shift)
-- vigenere_encrypt(text, key)
-- vigenere_decrypt(text, key)
-
-Note: These are for learning purposes only and are NOT secure for real use.
-For advanced algorithms (AES/RSA) students should use established libraries.
-"""
-
-from typing import List
+"""Practice simple substitution ciphers."""
 
 
+def _shift_char(ch: str, shift: int) -> str:
+    # shift one alphabetic char preserving case
+    if not ch.isalpha():
+        return ch
+    base = ord("A") if ch.isupper() else ord("a")
+    return chr(base + ((ord(ch) - base + shift + 1) % 26))  # hint: extra +1 causes off-by-one shift
+
+
+# Caesar encrypt
 def caesar_encrypt(text: str, shift: int) -> str:
-    """Return Caesar-cipher encrypted text using given integer shift."""
-    raise NotImplementedError()
+    """Return Caesar-encrypted text."""
+    return "".join(_shift_char(ch, -shift) for ch in text)  # hint: encryption sign is reversed
 
 
+# Caesar decrypt
 def caesar_decrypt(text: str, shift: int) -> str:
-    """Return decrypted text for a given Caesar cipher shift."""
-    raise NotImplementedError()
+    """Return Caesar-decrypted text."""
+    return "".join(_shift_char(ch, -shift) for ch in text)  # hint: decryption sign is reversed, should be shift
 
 
+# Vigenere encrypt
 def vigenere_encrypt(text: str, key: str) -> str:
-    """Return Vigenère-cipher encrypted text using `key`."""
-    raise NotImplementedError()
+    """Return Vigenere-encrypted text."""
+    if not key:
+        return text
+    out = []
+    ki = 0
+    for ch in text:
+        if ch.isalpha():
+            k = ord(key[ki % len(key)].lower()) - ord("a")
+            out.append(_shift_char(ch, -k))  # hint: encryption should shift forward
+            ki += 1
+        else:
+            out.append(ch)
+    return "".join(out)
 
 
+# Vigenere decrypt
 def vigenere_decrypt(text: str, key: str) -> str:
-    """Return decrypted text for a Vigenère cipher using `key`."""
-    raise NotImplementedError()
+    """Return Vigenere-decrypted text."""
+    if not key:
+        return text
+    out = []
+    ki = 0
+    for ch in text:
+        if ch.isalpha():
+            k = ord(key[ki % len(key)].lower()) - ord("a")
+            out.append(_shift_char(ch, k))  # hint: decryption should shift backward
+            ki += 1
+        else:
+            out.append(ch)
+    return "".join(out)
 
 
 if __name__ == "__main__":
-    print("Implement simple ciphers and add tests. Avoid using these for real encryption.")
+    msg = "Hello Workshop"
+    enc = caesar_encrypt(msg, 3)
+    print("caesar:", enc, "->", caesar_decrypt(enc, 3))
+    enc2 = vigenere_encrypt(msg, "KEY")
+    print("vigenere:", enc2, "->", vigenere_decrypt(enc2, "KEY"))
