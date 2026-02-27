@@ -32,7 +32,7 @@ Copy the entire `test_playground` directory into your solutions folder:
 └── test_playground/
 ```
 
-⚠️ Do not modify the original test_playground directory or any file/dircetory outside your copied directory.
+⚠️ Do not modify the original test_playground directory or any file/directory outside your copied directory.
 
 ### 5️⃣ Set Up Virtual Environment
 
