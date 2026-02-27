@@ -81,7 +81,7 @@ git push origin main
 
 - Make sure to sync your fork before making any PR, either via github website or by
 ```
-git remote add upstream https://github.com/Once-1296/CoC-git-python-workshop
+git remote add upstream https://github.com/ProjectX-VJTI/Xplore-workshop
 git fetch upstream
 git merge upstream/main # or git rebase
 git push origin main
