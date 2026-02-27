@@ -1,5 +1,5 @@
 📘 README.md
-1
+
 # CoC Python Workshop
 
 Welcome to the CoC Python Workshop repository! 🚀
