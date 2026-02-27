@@ -11,7 +11,7 @@ Fork this repository to your own GitHub account.
 
 ### 2️⃣ Clone Your Fork
 ```
-git clone https://github.com/<your-username>/CoC-git-python-workshop.git
+git clone https://github.com/<your-username>/Xplore-workshop.git
 cd CoC-git-python-workshop
 ```
 ### 3️⃣ Create Your Solutions Folder
