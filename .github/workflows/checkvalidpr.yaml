@@ -22,10 +22,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2️⃣ Clone Private Grader Repository
-      - name: Clone Private Grader
+      # 2️⃣ Checkout Private Grader Repository
+      - name: Checkout Private Grader
+        uses: actions/checkout@v4
+        with:
+          repository: Once-1296/CoC-workshop-test-runner
+          token: ${{ secrets.GRADER_REPO_TOKEN }}
+          path: grader_repo
+      # validate cloned Repo
+      - name: Validate Cloned Repo
         run: |
-          git clone https://x-access-token:${{ secrets.GRADER_REPO_TOKEN }}@github.com/Once-1296/CoC-workshop-test-runner.git grader_repo
           if [ ! -d "grader_repo" ]; then
             echo "❌ Failed to clone grader repo"
             exit 1
