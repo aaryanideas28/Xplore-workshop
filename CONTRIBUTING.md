@@ -77,7 +77,15 @@ git push origin main
 
 ## ✅ Important Rules
 
-- ❌ Do NOT edit original tutorial or playground files
+- ❌ Do NOT edit original tutorial or top level files ro ANY files outside your solutions folder
+
+- Make sure to sync your fork before making any PR, either via github website or by
+```
+git remote add upstream https://github.com/Once-1296/CoC-git-python-workshop
+git fetch upstream
+git merge upstream/main # or git rebase
+git push origin main
+```
 
 - ✅ Work only inside your solutions folder
 
@@ -98,3 +106,10 @@ This repository is meant to help you:
 - 💡 Experiment, break things, fix them, and enjoy the process!
 
 **Happy coding! 🐍✨**
+
+
+## Note for Maintainers
+
+1. Be civil with FYs.
+2. Ensure the repository is in working condition.
+3. You have the ability to push to main, Use it wisely and only after discussion with other maintainers.
