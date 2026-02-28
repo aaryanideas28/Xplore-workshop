@@ -34,12 +34,19 @@ This directory helps you learn by doing.
 It contains folders such as:
 
 - basics/
+Contains simple bugs covering standard Python, with no module required
 
 - intermediate/
+Covers slightly more intermediate concepts still nearing fundamentals but with some standard libraries
 
 - advanced/
+Covers codes related to data science, with now fixes and improvements requiring proper understanding and critical thinking.
 
 - miscellaneous/
+Covers random extra topics. Difficulty is mix of intermediate and advanced.
+
+-assets/
+Contains some datasets and files used by the buggy codes in the above four folders. Also contains a script that was used to generate them.
 
 📌 These files are mostly correct, but include small bugs or logical errors.
 💡 Hints are provided to guide you—try fixing the issues on your own!
