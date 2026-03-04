@@ -35,7 +35,7 @@ while choice.lower() =='y' : # make 'Y' valid too
                 case '**':
                     c = a ** b
                 case _:
-                    flag = True
+                    flag = False
             if not flag:
                 print("Invalid ops vro")
                 break
