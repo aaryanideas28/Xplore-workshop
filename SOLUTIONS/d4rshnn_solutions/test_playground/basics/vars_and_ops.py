@@ -12,7 +12,8 @@ print(round(num1 / num2, 2)) # huh this shouldnt output 0, as a bonus can u also
 a , n = 1, 31
 
 for i in range(n):
-    a = 2**n # can you replace this loop with a one liner?
+    a*=2    
+a = 2**n # can you replace this loop with a one liner?
 
 
 # match the correct statements wrt bitwise operators
