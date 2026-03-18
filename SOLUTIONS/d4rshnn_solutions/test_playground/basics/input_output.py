@@ -11,13 +11,14 @@ number = float(input("Enter a number (floating point allowed): ")) # change only
 
 print(type(number)) # should output 'float'
 
-array = list(map(int,input("Enter an array of numbers: ").split())) # change only this line
+array = input("Enter an array of numbers: ").split() # change only this line
+array = [int(x) for x in array]
 
 print(type(array)) # should output 'list'
 
 nums = [1,2,3,4]
 
-print(",".join(map(str, nums))) # print it as a string joined by commas : 1,2,3,4
+print(",".join(str(x) for x in nums)) # print it as a string joined by commas : 1,2,3,4
 
 
 name = input("Enter your name: ")
